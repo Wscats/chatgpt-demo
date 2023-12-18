@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>抽奖号码生成器</title>
+    <style>
+        body {
+            text-align: center;
+            padding: 50px;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        input[type="number"], button {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>抽奖号码生成器</h1>
+    <input type="number" id="start" placeholder="起始数字">
+    <br>
+    <input type="number" id="end" placeholder="结束数字">
+    <br>
+    <button onclick="setRange()">设置数字范围</button>
+    <br>
+    <button onclick="generateNumber()">抽奖</button>
+    <br>
+    <h2 id="output"></h2>
+
+    <script>
+        var numbers = [];
+
+        function setRange() {
+            var start = parseInt(document.getElementById("start").value);
+            var end = parseInt(document.getElementById("end").value);
+
+            for (var i = start; i <= end; i++) {
+                numbers.push(i);
+            }
+
+            document.getElementById("start").value = "";
+            document.getElementById("end").value = "";
+
+            alert("数字范围已设置");
+        }
+
+        function generateNumber() {
+            if (numbers.length === 0) {
+                document.getElementById("output").innerText = "抽奖结束";
+            } else {
+                var randomIndex = Math.floor(Math.random() * numbers.length);
+                var number = numbers[randomIndex];
+                numbers.splice(randomIndex, 1);
+
+                document.getElementById("output").innerText = number;
+            }
+        }
+    </script>
+</body>
+</html>

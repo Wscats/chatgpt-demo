@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = {
   extends: ['@evan-yang', 'plugin:astro/recommended'],
   rules: {

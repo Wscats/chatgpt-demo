@@ -13,7 +13,10 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx,.astro",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx,.astro --fix",
     "test": "jest --coverage",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "lint:check": "eslint . --ext .ts,.tsx,.js,.jsx",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@astrojs/netlify": "2.0.0",
@@ -49,5 +52,19 @@
   },
   "engines": {
     "node": ">=18.0.0"
-  }
+  },
+  "keywords": [
+    "chatgpt",
+    "demo"
+  ],
+  "author": "wscats (https://github.com/wscats)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wscats/chatgpt-demo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wscats/chatgpt-demo/issues"
+  },
+  "homepage": "https://github.com/wscats/chatgpt-demo#readme"
 }

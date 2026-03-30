@@ -11,7 +11,9 @@
     "preview": "astro preview",
     "astro": "astro",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx,.astro",
-    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx,.astro --fix"
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx,.astro --fix",
+    "test": "jest --coverage",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@astrojs/netlify": "2.0.0",
@@ -44,5 +46,8 @@
     "unocss": "^0.50.1",
     "@evan-yang/eslint-config": "^1.0.1",
     "vite-plugin-pwa": "^0.14.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

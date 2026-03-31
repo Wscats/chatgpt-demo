@@ -2,8 +2,10 @@ import { createParser } from 'eventsource-parser'
 import type { ParsedEvent, ReconnectInterval } from 'eventsource-parser'
 import type { ChatMessage } from '@/types'
 
+/** Default OpenAI model to use for chat completions. */
 const model = import.meta.env.OPENAI_API_MODEL || 'gpt-3.5-turbo'
 
+/** Generate the fetch request payload for OpenAI chat completions API. */
 export const generatePayload = (apiKey: string, messages: ChatMessage[]): RequestInit & { dispatcher?: any } => ({
   headers: {
     'Content-Type': 'application/json',
@@ -18,6 +20,10 @@ export const generatePayload = (apiKey: string, messages: ChatMessage[]): Reques
   }),
 })
 
+/**
+ * Parse an OpenAI streaming response into a ReadableStream.
+ * Handles SSE events and extracts delta content from each chunk.
+ */
 export const parseOpenAIStream = (rawResponse: Response) => {
   const encoder = new TextEncoder()
   const decoder = new TextDecoder()
@@ -38,15 +44,6 @@ export const parseOpenAIStream = (rawResponse: Response) => {
             return
           }
           try {
-            // response = {
-            //   id: 'chatcmpl-6pULPSegWhFgi0XQ1DtgA3zTa1WR6',
-            //   object: 'chat.completion.chunk',
-            //   created: 1677729391,
-            //   model: 'gpt-3.5-turbo-0301',
-            //   choices: [
-            //     { delta: { content: '你' }, index: 0, finish_reason: null }
-            //   ],
-            // }
             const json = JSON.parse(data)
             const text = json.choices[0].delta?.content || ''
             const queue = encoder.encode(text)

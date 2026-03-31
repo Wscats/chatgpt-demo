@@ -14,30 +14,33 @@ interface Props {
   onRetry?: () => void
 }
 
+/** CSS gradient classes for each message role. */
+const ROLE_CLASSES: Record<ChatMessage['role'], string> = {
+  system: 'bg-gradient-to-r from-gray-300 via-gray-200 to-gray-300',
+  user: 'bg-gradient-to-r from-purple-400 to-yellow-400',
+  assistant: 'bg-gradient-to-r from-yellow-200 via-green-200 to-green-300',
+}
+
 export default ({ role, message, showRetry, onRetry }: Props) => {
-  const roleClass = {
-    system: 'bg-gradient-to-r from-gray-300 via-gray-200 to-gray-300',
-    user: 'bg-gradient-to-r from-purple-400 to-yellow-400',
-    assistant: 'bg-gradient-to-r from-yellow-200 via-green-200 to-green-300',
-  }
   const [source] = createSignal('')
   const { copy, copied } = useClipboard({ source, copiedDuring: 1000 })
 
   useEventListener('click', (e) => {
     const el = e.target as HTMLElement
-    let code = null
+    let code: string | null = null
 
     if (el.matches('div > div.copy-btn')) {
       code = decodeURIComponent(el.dataset.code!)
-      copy(code)
+    } else if (el.matches('div > div.copy-btn > svg')) {
+      code = decodeURIComponent(el.parentElement?.dataset.code ?? '')
     }
-    if (el.matches('div > div.copy-btn > svg')) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-      code = decodeURIComponent(el.parentElement?.dataset.code!)
+
+    if (code) {
       copy(code)
     }
   })
 
+  /** Render message content as HTML using markdown-it with KaTeX and syntax highlighting. */
   const htmlString = () => {
     const md = MarkdownIt({
       linkify: true,
@@ -71,7 +74,7 @@ export default ({ role, message, showRetry, onRetry }: Props) => {
   return (
     <div class="py-2 -mx-4 px-4 transition-colors md:hover:bg-slate/3">
       <div class="flex gap-3 rounded-lg" class:op-75={role === 'user'}>
-        <div class={`shrink-0 w-7 h-7 mt-4 rounded-full op-80 ${roleClass[role]}`} />
+        <div class={`shrink-0 w-7 h-7 mt-4 rounded-full op-80 ${ROLE_CLASSES[role]}`} />
         <div class="message prose break-words overflow-hidden" innerHTML={htmlString()} />
       </div>
       {showRetry?.() && onRetry && (

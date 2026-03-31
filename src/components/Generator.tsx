@@ -7,6 +7,13 @@ import SystemRoleSettings from './SystemRoleSettings'
 import ErrorMessageItem from './ErrorMessageItem'
 import type { ChatMessage, ErrorMessage } from '@/types'
 
+/** Storage keys for persisting state across sessions. */
+const STORAGE_KEYS = {
+  MESSAGE_LIST: 'messageList',
+  SYSTEM_ROLE: 'systemRoleSettings',
+  STICK_TO_BOTTOM: 'stickToBottom',
+} as const
+
 export default () => {
   let inputRef: HTMLTextAreaElement
   const [currentSystemRoleSettings, setCurrentSystemRoleSettings] = createSignal('')
@@ -30,13 +37,13 @@ export default () => {
     })
 
     try {
-      if (localStorage.getItem('messageList'))
-        setMessageList(JSON.parse(localStorage.getItem('messageList')))
+      if (localStorage.getItem(STORAGE_KEYS.MESSAGE_LIST))
+        setMessageList(JSON.parse(localStorage.getItem(STORAGE_KEYS.MESSAGE_LIST)))
 
-      if (localStorage.getItem('systemRoleSettings'))
-        setCurrentSystemRoleSettings(localStorage.getItem('systemRoleSettings'))
+      if (localStorage.getItem(STORAGE_KEYS.SYSTEM_ROLE))
+        setCurrentSystemRoleSettings(localStorage.getItem(STORAGE_KEYS.SYSTEM_ROLE))
 
-      if (localStorage.getItem('stickToBottom') === 'stick')
+      if (localStorage.getItem(STORAGE_KEYS.STICK_TO_BOTTOM) === 'stick')
         setStick(true)
     } catch (err) {
       console.error(err)
@@ -49,9 +56,12 @@ export default () => {
   })
 
   const handleBeforeUnload = () => {
-    localStorage.setItem('messageList', JSON.stringify(messageList()))
-    localStorage.setItem('systemRoleSettings', currentSystemRoleSettings())
-    isStick() ? localStorage.setItem('stickToBottom', 'stick') : localStorage.removeItem('stickToBottom')
+    localStorage.setItem(STORAGE_KEYS.MESSAGE_LIST, JSON.stringify(messageList()))
+    localStorage.setItem(STORAGE_KEYS.SYSTEM_ROLE, currentSystemRoleSettings())
+    if (isStick())
+      localStorage.setItem(STORAGE_KEYS.STICK_TO_BOTTOM, 'stick')
+    else
+      localStorage.removeItem(STORAGE_KEYS.STICK_TO_BOTTOM)
   }
 
   const handleButtonClick = async() => {
@@ -59,9 +69,6 @@ export default () => {
     if (!inputValue)
       return
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    if (window?.umami) umami.trackEvent('chat_generate')
     inputRef.value = ''
     setMessageList([
       ...messageList(),
@@ -82,6 +89,7 @@ export default () => {
     window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' })
   }
 
+  /** Send the latest message list to the API and stream the response. */
   const requestWithLatestMessage = async() => {
     setLoading(true)
     setCurrentAssistantMessage('')
@@ -149,6 +157,7 @@ export default () => {
     isStick() && instantToBottom()
   }
 
+  /** Archive the current streaming assistant message into the message list. */
   const archiveCurrentMessage = () => {
     if (currentAssistantMessage()) {
       setMessageList([
@@ -165,6 +174,7 @@ export default () => {
     }
   }
 
+  /** Clear all messages and reset the input. */
   const clear = () => {
     inputRef.value = ''
     inputRef.style.height = 'auto'
@@ -173,6 +183,7 @@ export default () => {
     setCurrentError(null)
   }
 
+  /** Abort the current streaming fetch and archive partial response. */
   const stopStreamFetch = () => {
     if (controller()) {
       controller().abort()
@@ -180,6 +191,7 @@ export default () => {
     }
   }
 
+  /** Retry the last assistant response by removing it and re-requesting. */
   const retryLastFetch = () => {
     if (messageList().length > 0) {
       const lastMessage = messageList()[messageList().length - 1]
@@ -194,7 +206,7 @@ export default () => {
     if (e.isComposing || e.shiftKey)
       return
 
-    if (e.keyCode === 13) {
+    if (e.key === 'Enter') {
       e.preventDefault()
       handleButtonClick()
     }
